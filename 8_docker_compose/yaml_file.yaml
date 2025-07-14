@@ -1,0 +1,30 @@
+list:
+  - aa: dsad
+  - ss: dsad
+
+anchor_example:
+  &anchor_example
+  - peter3: 12
+    olga3: 44
+
+multi_string: |
+  one
+  two
+
+one_string1:
+  one
+  two
+one_string2: >
+  one
+  two
+
+name:
+  - peter: 32
+    olga: 16
+  - peter2: 12
+    olga2: 44
+  - <<: *anchor_example
+
+test_anchor:
+  <<: *anchor_example
+

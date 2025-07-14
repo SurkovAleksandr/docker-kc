@@ -1,0 +1,1 @@
+Изучение bind moun и volume на примере создания и запуска [телеграмм-бота](https://lab.karpov.courses/learning/102/module/1276/lesson/12128/35059/235476/).
