@@ -2,11 +2,11 @@ list:
   - aa: dsad
   - ss: dsad
 
-anchor_example:
-  &anchor_example
+anchor_example: &anchor_example
   - peter3: 12
     olga3: 44
 
+# многострочное значение
 multi_string: |
   one
   two
@@ -14,6 +14,8 @@ multi_string: |
 one_string1:
   one
   two
+
+# однострочное значение
 one_string2: >
   one
   two

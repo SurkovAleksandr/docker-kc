@@ -41,6 +41,7 @@ docker run --rm -d \
   -e POSTGRES_DB=postgresql \
   -e POSTGRES_USER=postgresql \
   -e POSTGRES_PASSWORD=postgresql \
+  -p 5432:5432 \
   7_database
 ```
 

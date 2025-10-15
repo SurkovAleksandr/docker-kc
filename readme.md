@@ -70,6 +70,10 @@ docker run -v todo_volume:/app/todo_result:ro todo_result - подключени
   
   > Чтобы уменьшить контекст сборки надо использовать файл .dockerignore 
 
+  > Использовать slim или alpine пакеты
+ 
+  > Очищать кэш apt: `rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*`
+
 # Другие полезные команды
 - docker stop $(docker ps -aq) - остановить все контейнеры
 - docker system df - информация о размерах образов, контейнеров, кэша
@@ -143,7 +147,8 @@ docker run -v todo_volume:/app/todo_result:ro todo_result - подключени
 - `sudo lsof -i :8080` - информация о процессах, которые слушают порт 8080
 - `tcpdump -i wlp0s20f3 icmp` - проверка сетевого трафика(пакетов icmp) на интерфейсе(-i) wlp0s20f3
 - `traceroute -I mail.ru` - отслеживает через какие IP адреса проходит запрос. Опция -I нужна чтобы использовались пакеты ICMP(пропускаются роутерами), а не UDP.
-- `docker network inspect --format '{{range $k, $v := .Containers}}{{$v.Name}}: {{$v.IPv4Address}}{{println}}{{end}}' bridge | sed '${/^$/d}'`
+- `sudo iptables -t filter -vL` - вывод информации о правилах iptables.
+- `docker network inspect --format '{{range $k, $v := .Containers}}{{$v.Name}}: {{$v.IPv4Address}}{{println}}{{end}}' bridge <название_сети>| sed '${/^$/d}'`
    Вывод информации о контейнерах в сети bridge и их IP адресах. Результат будет примерно таким:
    ```shell
   postgres17_5: 172.17.0.3/16
@@ -152,7 +157,24 @@ docker run -v todo_volume:/app/todo_result:ro todo_result - подключени
   postgres_18b1: 172.17.0.4/16
   ```
   sed используется для удаления пустой строки в конце вывода.
-- `sudo iptables -t filter -vL` - вывод информации о правилах iptables.
+- посмотреть все контейнеры и их сети `docker ps --format '{{.ID}} {{.Names}} {{json .Networks}}'`
+
+- Для диагностики подключения к Kafka
+  - настройки в docker-compose:
+    ```shell
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Настройки для вызовов внутри контейнеров и с хоста
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ```
+  - проверка соединения с Kafka `./kafka-topics.sh --list --bootstrap-server localhost:9092`  
+  - На хосте выполните netstat -an | grep 9092 или ss -lnt | grep 9092, чтобы убедиться, что локальный порт 9092 открыт.
+  - Попробуйте telnet localhost 9092 или nc -vz localhost 9092 — если соединение установится, порт открыт.
 
 
 ## Интересные задания
